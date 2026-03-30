@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم السريّة | شبكة صناع الصورة</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Cairo Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Cairo', sans-serif !important; }
+        .hidden-view { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        .glass-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#050505] text-gray-100 font-bold selection:bg-emerald-500/30">
+
+    <header class="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-white leading-tight">لوحة التحكم السريّة</h1>
+                    <p class="text-[10px] text-emerald-400 tracking-wider">الإدارة المركزية لشبكة صناع الصورة</p>
+                </div>
+            </div>
+            <a href="index.html" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm transition-all flex gap-2 items-center hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                <i data-lucide="external-link" class="w-4 h-4"></i> العودة للموقع
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-10 relative">
+        
+        <!-- واجهة تسجيل الدخول -->
+        <div id="admin-login-view" class="max-w-md mx-auto mt-16">
+            <div class="glass-card p-10 rounded-3xl shadow-2xl text-center border-t border-emerald-500/30 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6 text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.2)] relative z-10">
+                    <i data-lucide="lock-keyhole" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-8 relative z-10">تسجيل الدخول للإدارة</h2>
+                <input type="password" id="admin-pass" placeholder="أدخل كلمة المرور السريّة..." class="w-full p-4 bg-black/50 border border-white/10 rounded-xl mb-6 text-center text-2xl tracking-[0.5em] focus:ring-2 focus:ring-emerald-500/50 outline-none text-white relative z-10" onkeypress="if(event.key === 'Enter') window.checkAdminPassword()">
+                <button onclick="window.checkAdminPassword()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 relative z-10">التحقق والدخول</button>
+            </div>
+        </div>
+
+        <!-- لوحة التحكم (الداشبورد) -->
+        <div id="admin-dashboard-view" class="hidden-view fade-in-up space-y-8">
+            
+            <!-- الإحصائيات العلوية -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-6 flex items-center gap-6 border-l-4 border-l-blue-500">
+                    <div class="bg-blue-500/20 w-16 h-16 rounded-full flex items-center justify-center text-blue-400 shrink-0">
+                        <i data-lucide="eye" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">إجمالي زيارات الموقع</p>
+                        <h3 id="admin-views-count" class="text-4xl font-black text-white">0</h3>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 flex items-center gap-6 border-l-4 border-l-emerald-500">
+                    <div class="bg-emerald-500/20 w-16 h-16 rounded-full flex items-center justify-center text-emerald-400 shrink-0">
+                        <i data-lucide="users" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">إجمالي المحترفين المسجلين</p>
+                        <h3 id="admin-users-count" class="text-4xl font-black text-white">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الصف الأول: القائمة السوداء و البلاغات -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- القائمة السوداء -->
+                <div class="glass-card border-red-500/20 rounded-2xl p-6 flex flex-col h-[400px]">
+                    <div class="flex items-center gap-3 mb-4 border-b border-red-500/20 pb-3 shrink-0">
+                        <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center text-red-400">
+                            <i data-lucide="ban" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-red-400">القائمة السوداء</h3>
+                            <p class="text-[10px] text-gray-400">الأرقام المحظورة من المنصة</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-4 shrink-0">
+                        <input type="tel" id="blacklist-input" class="w-full p-2.5 bg-black/50 border border-red-500/30 rounded-xl focus:ring-2 focus:ring-red-500/50 outline-none text-gray-100 text-sm font-mono text-left" placeholder="رقم الهاتف للحظر..." dir="ltr">
+                        <button onclick="window.addBlacklist()" class="bg-red-500 hover:bg-red-400 text-white px-5 rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(239,68,68,0.3)] whitespace-nowrap">حظر</button>
+                    </div>
+                    
+                    <div id="blacklist-container" class="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Blacklist items -->
+                    </div>
+                </div>
+
+                <!-- مراقبة البلاغات والشكاوى -->
+                <div class="glass-card border-purple-500/20 rounded-2xl p-6 flex flex-col h-[400px]">
+                    <div class="flex items-center gap-3 mb-4 border-b border-purple-500/20 pb-3 shrink-0">
+                        <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400">
+                            <i data-lucide="flag" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-400">مراقبة البلاغات</h3>
+                            <p class="text-[10px] text-gray-400">شكاوى العملاء والمحترفين</p>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-reports-container" class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Reports items -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- الصف الثاني: البحث والحذف السريع (عرض كامل) -->
+            <div class="glass-card border-amber-500/20 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-6 border-b border-amber-500/20 pb-4">
+                    <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-400 shrink-0">
+                        <i data-lucide="user-minus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-amber-400">البحث والحذف السريع</h3>
+                        <p class="text-[10px] text-gray-400">ابحث برقم الهاتف لحذف البطاقة نهائياً</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mb-6 max-w-2xl">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 text-amber-500/50 w-5 h-5"></i>
+                        <input type="tel" id="search-phone-input" onkeyup="window.searchProfessional()" class="w-full p-3.5 pl-12 bg-black/50 border border-amber-500/30 rounded-xl focus:ring-2 focus:ring-amber-500/50 outline-none text-white text-sm text-left font-mono" placeholder="أدخل رقم هاتف المسجل للبحث..." dir="ltr">
+                    </div>
+                    <button onclick="window.searchProfessional()" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500/40 px-8 rounded-xl font-bold transition-all border border-amber-500/30 whitespace-nowrap">بحث</button>
+                </div>
+
+                <div id="search-results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Search results -->
+                </div>
+            </div>
+
+            <!-- الصف الثالث: الأقسام ومراقبة الشات -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- إدارة الأقسام -->
+                <div class="glass-card border-emerald-500/20 rounded-2xl p-6 flex flex-col h-[500px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-emerald-500/20 pb-3 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+                                <i data-lucide="folder-tree" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-emerald-400">الأقسام والتخصصات</h3>
+                            </div>
+                        </div>
+                        <button onclick="window.addCategory()" class="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40 px-3 py-2 rounded-xl text-xs transition-colors flex items-center gap-1.5 font-bold border border-emerald-500/30">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> قسم جديد
+                        </button>
+                    </div>
+                    <div id="admin-categories-container" class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Categories content -->
+                    </div>
+                </div>
+
+                <!-- مراقبة الشات العام -->
+                <div class="glass-card border-cyan-500/20 rounded-2xl p-6 flex flex-col h-[500px]">
+                    <div class="flex items-center gap-3 mb-4 border-b border-cyan-500/20 pb-3 shrink-0">
+                        <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center text-cyan-400">
+                            <i data-lucide="message-square-dashed" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-cyan-400">مراقبة الشات العام</h3>
+                            <p class="text-[10px] text-gray-400">حذف الرسائل غير اللائقة</p>
+                        </div>
+                    </div>
+                    <div id="admin-chat-container" class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Chat monitoring content -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // إعدادات فايربيز المؤمنة
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDPoU1ymN5apK0jtddfOi7R7G7cK-RuSu8",
+                authDomain: "dalil-ca8c4.firebaseapp.com",
+                projectId: "dalil-ca8c4",
+                storageBucket: "dalil-ca8c4.firebasestorage.app",
+                messagingSenderId: "733342185007",
+                appId: "1:733342185007:web:b44e5041777a94601638da"
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // مسارات قاعدة البيانات الصحيحة
+        const getColRef = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+        const getDocRef = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+
+        // متغيرات عامة للوحة التحكم
+        window.MAIN_CATEGORIES = {
+            "مصورين": ['مصور فوتوغرافيا', 'مصور فيديوغرافي', 'مصور فيديو', 'مصور كرين', 'مصور منتجات'],
+            "مخرجين": ['مخرج', 'مساعد مخرج'],
+            "شغل ميديا": ['ميديا كافردج', 'صانع محتوى', 'مونتير (Editor)'],
+            "أصحاب معدات": ['صاحب وحدة ميكسر', 'صاحب درون', 'صاحب كاميرا كرين', 'إضاءة ومعدات تصوير'],
+            "سيارات نقل": ['سيارة نقل معدات', 'فان نقل معدات وكرو']
+        };
+        window.blacklistedNumbers = [];
+        window.allProfessionals = [];
+        window.allReports = [];
+        window.chatMessages = [];
+
+        // التهيئة والمصادقة
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
+            }
+        };
+        initAuth();
+        lucide.createIcons();
+
+        // نظام تسجيل الدخول البسيط للإدارة
+        window.checkAdminPassword = () => {
+            if (document.getElementById('admin-pass').value === '1234') {
+                document.getElementById('admin-login-view').classList.add('hidden-view');
+                document.getElementById('admin-dashboard-view').classList.remove('hidden-view');
+                initAdminData();
+            } else {
+                alert('كلمة المرور غير صحيحة! جرب 1234');
+            }
+        };
+
+        // استدعاء البيانات
+        function initAdminData() {
+            // 1. بيانات المسجلين
+            onSnapshot(getColRef('professionals'), (snapshot) => {
+                window.allProfessionals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                document.getElementById('admin-users-count').textContent = window.allProfessionals.length;
+                window.searchProfessional(); // تحديث نتائج البحث
+                if(window.allReports.length > 0) window.renderReports(); // تحديث أسماء المشتكى عليهم
+            });
+
+            // 2. إحصائيات الزيارات
+            onSnapshot(getDocRef('settings', 'stats'), (docSnap) => {
+                if (docSnap.exists()) document.getElementById('admin-views-count').textContent = docSnap.data().views || 0;
+            });
+
+            // 3. التخصصات والأقسام
+            onSnapshot(getDocRef('settings', 'categories'), (docSnap) => {
+                if (docSnap.exists()) {
+                    window.MAIN_CATEGORIES = docSnap.data().data;
+                } else {
+                    // حقن التخصصات الافتراضية إذا كانت قاعدة البيانات جديدة
+                    window.updateCategoriesInDB();
+                }
+                window.renderAdminCategories();
+            });
+
+            // 4. القائمة السوداء
+            onSnapshot(getDocRef('settings', 'blacklist'), (docSnap) => {
+                if (docSnap.exists()) window.blacklistedNumbers = docSnap.data().numbers || [];
+                window.renderAdminBlacklist();
+            });
+
+            // 5. البلاغات
+            onSnapshot(getColRef('reports'), (snapshot) => {
+                window.allReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                                    .sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                window.renderReports();
+            });
+
+            // 6. الشات العام (آخر 50 رسالة)
+            const chatQ = query(getColRef('global_chat'), orderBy('createdAt', 'desc'), limit(50));
+            onSnapshot(chatQ, (snapshot) => {
+                window.chatMessages = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                window.renderAdminChat();
+            });
+        }
+
+        // ==============================================
+        // دوال مساعدة للأيقونات
+        // ==============================================
+        window.getRoleIconName = (role) => {
+            if (!role) return 'camera';
+            if (role.includes('مخرج')) return 'clapperboard';
+            if (role.includes('ميكسر')) return 'sliders';
+            if (role.includes('درون')) return 'navigation';
+            if (role.includes('كرين') || role.includes('فيديو') || role.includes('فيديوغرافي')) return 'video';
+            if (role.includes('ميديا') || role.includes('كافردج') || role.includes('مونتير')) return 'film';
+            if (role.includes('نقل') || role.includes('سيارة') || role.includes('فان')) return 'truck';
+            return 'camera'; 
+        };
+
+        // ==============================================
+        // إدارة البلاغات (Reports)
+        // ==============================================
+        window.renderReports = () => {
+            const container = document.getElementById('admin-reports-container');
+            if(!container) return;
+            if(window.allReports.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">لا توجد بلاغات مسجلة حالياً.</p>';
+                return;
+            }
+
+            container.innerHTML = window.allReports.map(report => {
+                const reportedProf = window.allProfessionals.find(p => p.id === report.reportedUserId);
+                const profName = reportedProf ? reportedProf.name : 'مستخدم محذوف / مجهول';
+                const profPhone = reportedProf ? reportedProf.phone : '';
+
+                return `
+                <div class="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 flex flex-col gap-3 relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-white text-sm flex items-center gap-1.5">
+                                <i data-lucide="user-x" class="w-4 h-4 text-purple-400"></i> إبلاغ ضد: <span class="text-purple-300 ml-1">${profName}</span>
+                            </h4>
+                            ${profPhone ? `<p class="text-xs text-gray-400 font-mono mt-1" dir="ltr">${profPhone}</p>` : ''}
+                        </div>
+                        <button onclick="window.deleteReport('${report.id}')" class="text-gray-500 hover:text-white p-1.5 bg-black/40 rounded-lg transition-colors border border-white/5" title="تجاهل وحذف البلاغ">
+                            <i data-lucide="trash" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 border border-white/5 leading-relaxed">
+                        <span class="text-purple-500/80 font-bold block mb-1 text-xs">نص الشكوى:</span>
+                        "${report.reason}"
+                    </div>
+                    ${profPhone ? `
+                    <div class="pt-2 border-t border-purple-500/10">
+                        <button onclick="window.fastBan('${profPhone}', '${report.id}', '${report.reportedUserId}')" class="w-full bg-red-500/20 hover:bg-red-500/40 text-red-300 text-xs py-2 rounded-lg transition-colors border border-red-500/30 flex justify-center items-center gap-1.5 font-bold">
+                            <i data-lucide="ban" class="w-3.5 h-3.5"></i> حظر الرقم وحذف بطاقته نهائياً
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        };
+
+        window.deleteReport = async (reportId) => {
+            if(confirm('هل تريد تجاهل هذا البلاغ وحذفه؟')) {
+                await deleteDoc(getDocRef('reports', reportId));
+            }
+        };
+
+        window.fastBan = async (phone, reportId, profId) => {
+            if(confirm(`هل أنت متأكد من حظر الرقم (${phone}) وحذف بطاقته نهائياً بناءً على هذا البلاغ؟`)) {
+                // 1. حظر الرقم
+                if(!window.blacklistedNumbers.includes(phone)) {
+                    window.blacklistedNumbers.push(phone);
+                    await window.updateBlacklistInDB();
+                }
+                // 2. حذف البطاقة إن وجدت
+                if(profId && profId !== 'unknown') {
+                    try { await deleteDoc(getDocRef('professionals', profId)); } catch(e){}
+                }
+                // 3. حذف البلاغ
+                await window.deleteReport(reportId);
+                alert("تم تنفيذ العقوبة بنجاح.");
+            }
+        };
+
+        // ==============================================
+        // إدارة الشات العام (Chat Monitor)
+        // ==============================================
+        window.renderAdminChat = () => {
+            const container = document.getElementById('admin-chat-container');
+            if(!container) return;
+            if(window.chatMessages.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">لا توجد رسائل حالياً.</p>';
+                return;
+            }
+            container.innerHTML = window.chatMessages.map(msg => `
+                <div class="bg-cyan-950/20 border border-cyan-500/10 rounded-xl p-3 flex justify-between items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-black/50 overflow-hidden shrink-0 border border-cyan-500/20">
+                        ${msg.imageUrl ? `<img src="${msg.imageUrl}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-cyan-500"><i data-lucide="user" class="w-4 h-4"></i></div>`}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-cyan-400 text-xs font-bold mb-1 truncate">${msg.name || 'مجهول'}</p>
+                        <p class="text-sm text-gray-200 break-words leading-snug">${msg.text}</p>
+                    </div>
+                    <button onclick="window.deleteChatMessage('${msg.id}')" class="text-gray-500 hover:text-red-400 bg-black/40 p-1.5 rounded-lg transition-colors shrink-0 border border-white/5" title="حذف الرسالة">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        window.deleteChatMessage = async (id) => {
+            if(confirm('حذف هذه الرسالة من الشات العام؟')) {
+                await deleteDoc(getDocRef('global_chat', id));
+            }
+        };
+
+        // ==============================================
+        // إدارة التخصصات (Categories)
+        // ==============================================
+        window.updateCategoriesInDB = async () => {
+            await setDoc(getDocRef('settings', 'categories'), { data: window.MAIN_CATEGORIES });
+        };
+
+        window.renderAdminCategories = () => {
+            const container = document.getElementById('admin-categories-container');
+            let html = '';
+            for (const [cat, roles] of Object.entries(window.MAIN_CATEGORIES)) {
+                html += `
+                <div class="bg-black/30 border border-white/5 rounded-xl p-4 shadow-inner">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-emerald-400 text-sm flex items-center gap-1.5"><i data-lucide="folder" class="w-4 h-4"></i> ${cat}</h3>
+                        <div class="flex gap-1.5">
+                            <button onclick="window.editCategory('${cat}')" class="text-blue-400 hover:bg-blue-500/20 p-1.5 bg-black/40 rounded transition-colors"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="window.deleteCategory('${cat}')" class="text-gray-400 hover:text-red-400 hover:bg-red-500/10 p-1.5 bg-black/40 rounded transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="window.addRole('${cat}')" class="text-emerald-400 hover:bg-emerald-500/20 px-2 py-1 bg-emerald-500/10 rounded transition-colors flex items-center gap-1 text-[10px] font-bold"><i data-lucide="plus-circle" class="w-3 h-3"></i> إضافة تخصص</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        ${roles.map(role => `
+                            <div class="bg-white/5 border border-white/5 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-xs">
+                                <i data-lucide="${window.getRoleIconName(role)}" class="w-3.5 h-3.5 text-gray-500"></i>
+                                <span class="text-gray-200">${role}</span>
+                                <div class="flex gap-1 border-r border-white/10 pr-2 ml-1 pl-1">
+                                    <button onclick="window.editRole('${cat}', '${role}')" class="text-gray-400 hover:text-blue-400"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                                    <button onclick="window.deleteRole('${cat}', '${role}')" class="text-gray-400 hover:text-red-400"><i data-lucide="x" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = html;
+            lucide.createIcons();
+        };
+
+        window.addCategory = () => {
+            const name = prompt("أدخل اسم القسم الرئيسي الجديد (مثال: فنيين إضاءة):");
+            if (name && name.trim() && !window.MAIN_CATEGORIES[name.trim()]) {
+                window.MAIN_CATEGORIES[name.trim()] = [];
+                window.updateCategoriesInDB();
+            }
+        };
+        window.deleteCategory = (cat) => {
+            if (confirm(`حذف قسم "${cat}" وجميع التخصصات التي بداخله؟`)) { delete window.MAIN_CATEGORIES[cat]; window.updateCategoriesInDB(); }
+        };
+        window.editCategory = (cat) => {
+            const name = prompt("تعديل اسم القسم:", cat);
+            if (name && name.trim() && name !== cat) {
+                window.MAIN_CATEGORIES[name.trim()] = window.MAIN_CATEGORIES[cat];
+                delete window.MAIN_CATEGORIES[cat];
+                window.updateCategoriesInDB();
+            }
+        };
+        window.addRole = (cat) => {
+            const name = prompt(`أدخل التخصص الجديد لـ (${cat}):`);
+            if (name && name.trim() && !window.MAIN_CATEGORIES[cat].includes(name.trim())) {
+                window.MAIN_CATEGORIES[cat].push(name.trim());
+                window.updateCategoriesInDB();
+            }
+        };
+        window.deleteRole = (cat, role) => {
+            if (confirm(`حذف تخصص "${role}"؟`)) {
+                window.MAIN_CATEGORIES[cat] = window.MAIN_CATEGORIES[cat].filter(r => r !== role);
+                window.updateCategoriesInDB();
+            }
+        };
+        window.editRole = (cat, role) => {
+            const name = prompt("تعديل اسم التخصص:", role);
+            if (name && name.trim() && name !== role) {
+                const index = window.MAIN_CATEGORIES[cat].indexOf(role);
+                if (index !== -1) {
+                    window.MAIN_CATEGORIES[cat][index] = name.trim();
+                    window.updateCategoriesInDB();
+                }
+            }
+        };
+
+        // ==============================================
+        // إدارة القائمة السوداء (Blacklist)
+        // ==============================================
+        window.updateBlacklistInDB = async () => {
+            await setDoc(getDocRef('settings', 'blacklist'), { numbers: window.blacklistedNumbers });
+        };
+
+        window.renderAdminBlacklist = () => {
+            const container = document.getElementById('blacklist-container');
+            if(!container) return;
+            if(window.blacklistedNumbers.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">لا توجد أرقام محظورة حالياً.</p>'; return;
+            }
+            container.innerHTML = window.blacklistedNumbers.map(num => `
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex justify-between items-center group">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="phone-off" class="w-4 h-4 text-red-500/50"></i>
+                        <span class="text-red-200 font-mono text-sm tracking-widest" dir="ltr">${num}</span>
+                    </div>
+                    <button onclick="window.removeBlacklist('${num}')" class="text-gray-400 hover:text-white text-[10px] font-bold bg-black/40 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors border border-white/5 opacity-50 group-hover:opacity-100">إلغاء الحظر</button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        window.addBlacklist = () => {
+            const input = document.getElementById('blacklist-input');
+            const num = input.value.trim().replace(/\s+/g, '');
+            if(!num) return;
+            if(window.blacklistedNumbers.includes(num)) { alert("هذا الرقم محظور بالفعل."); return; }
+            window.blacklistedNumbers.push(num);
+            input.value = '';
+            window.updateBlacklistInDB();
+        };
+
+        window.removeBlacklist = (num) => {
+            if(confirm(`هل أنت متأكد من مسامحة وإلغاء حظر الرقم ${num}؟`)) {
+                window.blacklistedNumbers = window.blacklistedNumbers.filter(n => n !== num);
+                window.updateBlacklistInDB();
+            }
+        };
+
+        // ==============================================
+        // البحث والحذف (Search & Delete)
+        // ==============================================
+        window.searchProfessional = () => {
+            const container = document.getElementById('search-results-container');
+            const input = document.getElementById('search-phone-input');
+            
+            if(!container || !input) return;
+
+            const queryText = input.value.trim().replace(/\s+/g, '');
+            
+            if(!queryText) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center col-span-full py-8 bg-black/20 rounded-xl border border-dashed border-white/10">أدخل أي جزء من رقم هاتف المسجل لتبدأ البحث الفوري...</p>';
+                return;
+            }
+
+            const results = window.allProfessionals.filter(p => p.phone && p.phone.includes(queryText));
+
+            if(results.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center col-span-full py-8 bg-black/20 rounded-xl border border-dashed border-white/10">لم يتم العثور على أي بطاقة مسجلة تطابق هذا الرقم.</p>';
+                return;
+            }
+
+            container.innerHTML = results.map(p => `
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden group w-full shadow-lg">
+                    <div class="flex justify-between items-start z-10 w-full">
+                        <div class="flex-1 min-w-0 pr-2">
+                            <h4 class="font-bold text-white text-lg truncate">${p.name}</h4>
+                            <div class="flex items-center gap-1.5 mt-1 text-amber-400 bg-amber-500/10 w-fit px-2 py-0.5 rounded border border-amber-500/20">
+                                <i data-lucide="${window.getRoleIconName(p.role)}" class="w-3 h-3"></i>
+                                <p class="text-[10px] font-bold">${p.role}</p>
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-black/50 overflow-hidden border border-white/10 shrink-0 shadow-inner">
+                            ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i data-lucide="${window.getRoleIconName(p.role)}" class="w-6 h-6 text-gray-600"></i></div>`}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-400 flex flex-col gap-2 z-10 bg-black/40 p-3.5 rounded-xl border border-white/5 w-full">
+                        <div class="flex justify-between items-center">
+                            <i data-lucide="phone" class="w-4 h-4 text-emerald-500"></i>
+                            <p dir="ltr" class="text-right font-mono text-emerald-300 font-bold tracking-widest">${p.phone}</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-blue-400"></i>
+                            <p class="text-xs text-gray-300">${p.governorate} ${p.city ? `- ${p.city}` : ''}</p>
+                        </div>
+                    </div>
+                    <button onclick="window.deleteProfessionalCard('${p.id}', '${p.name}')" class="mt-2 w-full bg-red-500/10 hover:bg-red-500 border border-red-500/30 hover:border-red-500 text-red-300 hover:text-white py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 text-sm font-bold shadow-sm z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> حذف هذه البطاقة نهائياً
+                    </button>
+                    ${p.coverUrl ? `<img src="${p.coverUrl}" class="absolute inset-0 w-full h-full object-cover opacity-[0.03] pointer-events-none group-hover:opacity-[0.1] transition-opacity duration-500">` : ''}
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        };
+
+        window.deleteProfessionalCard = async (id, name) => {
+            if(confirm(`تحذير: هل أنت متأكد تماماً من حذف بطاقة "${name}" بشكل نهائي؟\n(لا يمكن التراجع عن هذا الإجراء)`)) {
+                try {
+                    await deleteDoc(getDocRef('professionals', id));
+                    alert('تم حذف البطاقة بنجاح من قاعدة البيانات.');
+                } catch(e) {
+                    console.error("Delete Error:", e);
+                    alert('حدث خطأ أثناء الحذف. تأكد من اتصالك.');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
