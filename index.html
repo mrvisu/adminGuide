@@ -46,7 +46,7 @@
                     <p class="text-[10px] text-emerald-400 tracking-wider">الإدارة المركزية لشبكة صناع الصورة</p>
                 </div>
             </div>
-            <a href="https://mrvisu.github.io/Guide/" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm transition-all flex gap-2 items-center hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <a href="index.html" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm transition-all flex gap-2 items-center hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 <i data-lucide="external-link" class="w-4 h-4"></i> العودة للموقع
             </a>
         </div>
@@ -89,6 +89,36 @@
                         <p class="text-gray-400 text-sm mb-1">إجمالي المحترفين المسجلين</p>
                         <h3 id="admin-users-count" class="text-4xl font-black text-white">0</h3>
                     </div>
+                </div>
+            </div>
+
+            <!-- إدارة إعلان النظام -->
+            <div class="glass-card border-purple-500/20 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4 border-b border-purple-500/20 pb-3">
+                    <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400">
+                        <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-purple-400">إدارة التنبيه العام</h3>
+                        <p class="text-[10px] text-gray-400">التحكم في الرسالة التي تظهر أعلى التطبيق لجميع العملاء والمحترفين</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 max-w-3xl">
+                    <div class="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/10">
+                        <label class="text-sm text-gray-300 font-bold">تفعيل التنبيه وإظهاره بالموقع</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="admin-announcement-active" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                        </label>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-400">نص التنبيه</label>
+                        <textarea id="admin-announcement-text" rows="3" class="w-full p-4 bg-black/40 border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500/50 outline-none text-white transition-all text-sm leading-relaxed" placeholder="اكتب التنبيه هنا..."></textarea>
+                    </div>
+                    
+                    <button onclick="window.saveAnnouncement()" id="admin-save-btn" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] mt-2">حفظ ونشر التنبيه</button>
                 </div>
             </div>
 
@@ -207,8 +237,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // إعدادات فايربيز المؤمنة
         const firebaseConfig = typeof __firebase_config !== 'undefined' 
@@ -232,13 +262,7 @@
         const getDocRef = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
 
         // متغيرات عامة للوحة التحكم
-        window.MAIN_CATEGORIES = {
-            "مصورين": ['مصور فوتوغرافيا', 'مصور فيديوغرافي', 'مصور فيديو', 'مصور كرين', 'مصور منتجات'],
-            "مخرجين": ['مخرج', 'مساعد مخرج'],
-            "شغل ميديا": ['ميديا كافردج', 'صانع محتوى', 'مونتير (Editor)'],
-            "أصحاب معدات": ['صاحب وحدة ميكسر', 'صاحب درون', 'صاحب كاميرا كرين', 'إضاءة ومعدات تصوير'],
-            "سيارات نقل": ['سيارة نقل معدات', 'فان نقل معدات وكرو']
-        };
+        window.MAIN_CATEGORIES = {};
         window.blacklistedNumbers = [];
         window.allProfessionals = [];
         window.allReports = [];
@@ -290,7 +314,6 @@
                 if (docSnap.exists()) {
                     window.MAIN_CATEGORIES = docSnap.data().data;
                 } else {
-                    // حقن التخصصات الافتراضية إذا كانت قاعدة البيانات جديدة
                     window.updateCategoriesInDB();
                 }
                 window.renderAdminCategories();
@@ -305,17 +328,58 @@
             // 5. البلاغات
             onSnapshot(getColRef('reports'), (snapshot) => {
                 window.allReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                                    .sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                                                    .sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 window.renderReports();
             });
 
-            // 6. الشات العام (آخر 50 رسالة)
+            // 6. الشات العام
             const chatQ = query(getColRef('global_chat'), orderBy('createdAt', 'desc'), limit(50));
             onSnapshot(chatQ, (snapshot) => {
                 window.chatMessages = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
                 window.renderAdminChat();
             });
+
+            // 7. التنبيه الإداري
+            onSnapshot(getDocRef('settings', 'announcement'), (docSnap) => {
+                const adminInput = document.getElementById('admin-announcement-text');
+                const adminActive = document.getElementById('admin-announcement-active');
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if(adminInput) adminInput.value = data.message || "";
+                    if(adminActive) adminActive.checked = !!data.active;
+                } else {
+                    if(adminInput) adminInput.value = "نظراً لقرارات الدولة الخاصة بمواعيد الحظر، نُهيب بجميع الزملاء والعملاء الالتزام التام بالمواعيد والحضور المبكر. سلامتكم وإنجاز أعمالكم باحترافية هما أولويتنا.";
+                    if(adminActive) adminActive.checked = true;
+                }
+            });
         }
+
+        // ==============================================
+        // حفظ التنبيه الإداري
+        // ==============================================
+        window.saveAnnouncement = async () => {
+            const isActive = document.getElementById('admin-announcement-active').checked;
+            const text = document.getElementById('admin-announcement-text').value.trim();
+            const btn = document.getElementById('admin-save-btn');
+            
+            btn.disabled = true;
+            btn.textContent = "جاري الحفظ...";
+            
+            try {
+                const docRef = getDocRef('settings', 'announcement');
+                await setDoc(docRef, {
+                    active: isActive,
+                    message: text
+                }, { merge: true });
+                alert("تم حفظ ونشر رسالة النظام الإدارية بنجاح!");
+            } catch(e) {
+                console.error(e);
+                alert("حدث خطأ أثناء حفظ الإعدادات.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "حفظ ونشر التنبيه";
+            }
+        };
 
         // ==============================================
         // دوال مساعدة للأيقونات
@@ -385,16 +449,13 @@
 
         window.fastBan = async (phone, reportId, profId) => {
             if(confirm(`هل أنت متأكد من حظر الرقم (${phone}) وحذف بطاقته نهائياً بناءً على هذا البلاغ؟`)) {
-                // 1. حظر الرقم
                 if(!window.blacklistedNumbers.includes(phone)) {
                     window.blacklistedNumbers.push(phone);
                     await window.updateBlacklistInDB();
                 }
-                // 2. حذف البطاقة إن وجدت
                 if(profId && profId !== 'unknown') {
                     try { await deleteDoc(getDocRef('professionals', profId)); } catch(e){}
                 }
-                // 3. حذف البلاغ
                 await window.deleteReport(reportId);
                 alert("تم تنفيذ العقوبة بنجاح.");
             }
